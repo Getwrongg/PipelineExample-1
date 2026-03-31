@@ -1,0 +1,33 @@
+name: Build and Deploy Local Web App
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: pipelineexample-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Show Docker version
+        run: docker version
+
+      - name: Stop existing app
+        run: docker compose down
+        working-directory: ${{ github.workspace }}
+
+      - name: Build and start app
+        run: docker compose up --build -d
+        working-directory: ${{ github.workspace }}
+
+      - name: Show running containers
+        run: docker ps
