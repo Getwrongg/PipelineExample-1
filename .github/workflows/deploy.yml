@@ -1,17 +1,33 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
+name: Build and Deploy Local Web App
 
-COPY ["PipelineExample.csproj", "."]
-RUN dotnet restore "PipelineExample.csproj"
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
-COPY . .
-RUN dotnet publish "PipelineExample.csproj" -c Release -o /app/publish /p:UseAppHost=false
+concurrency:
+  group: pipelineexample-deploy
+  cancel-in-progress: true
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
-WORKDIR /app
-COPY --from=build /app/publish .
+jobs:
+  deploy:
+    runs-on: self-hosted
 
-ENV ASPNETCORE_URLS=http://+:8080
-EXPOSE 8080
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
 
-ENTRYPOINT ["dotnet", "PipelineExample.dll"]
+      - name: Show Docker version
+        run: docker version
+
+      - name: Stop existing app
+        run: docker compose down
+        working-directory: ${{ github.workspace }}
+
+      - name: Build and start app
+        run: docker compose up --build -d
+        working-directory: ${{ github.workspace }}
+
+      - name: Show running containers
+        run: docker ps
