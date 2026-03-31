@@ -1,0 +1,10 @@
+docker run -d `
+  --name github-runner `
+  --restart unless-stopped `
+  -e REPO_URL=https://github.com/Getwrongg/PipelineExample-1 `
+  -e RUNNER_TOKEN=SECRET HERE `
+  -e RUNNER_NAME=local-runner `
+  -e RUNNER_WORKDIR=/tmp/runner/work `
+  -e RUNNER_LABELS=self-hosted,docker `
+  -v /var/run/docker.sock:/var/run/docker.sock `
+  myoung34/github-runner:latest
