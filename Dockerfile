@@ -1,10 +1,11 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY ["PipelineExample.csproj", "."]
-RUN dotnet restore "PipelineExample.csproj"
+COPY ["PipelineExample/PipelineExample.csproj", "PipelineExample/"]
+RUN dotnet restore "PipelineExample/PipelineExample.csproj"
 
 COPY . .
+WORKDIR /src/PipelineExample
 RUN dotnet publish "PipelineExample.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
